@@ -4,30 +4,34 @@
         ##
         #  PHP-FPM
         ##
-        kronosaurus_php_fpm:
+        php_fpm:
             build: ./php-fpm/
+            volumes:
+                - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
             volumes_from: 
-               - source_kronosaurus 
+               - source 
             links: 
-                - kronosaurus_maildev
-                - kronosaurus_mariadb
+                - maildev
+                - mariadb
             expose:
                 - 9000
         ##
         #  NGINX
         ##
-        kronosaurus_nginx:
+        nginx:
             build: ./nginx/
+            volumes:
+                - ./nginx/config:/etc/nginx/conf.d
             volumes_from: 
-               - source_kronosaurus 
+               - source 
             links:
-                - kronosaurus_php_fpm
+                - php_fpm
             ports:
                 - 8080:80
         ##
         #  Dev Email
         ##
-        kronosaurus_maildev:
+        maildev:
             image: djfarrelly/maildev
             ports:
                 - "8081:80"
@@ -35,20 +39,20 @@
         ##
         #  Mysql
         ##
-        kronosaurus_mariadb:
+        mariadb:
           image: mariadb
           ports:
             - "3306:3306"
           environment: 
             - MYSQL_ROOT_PASSWORD=password
 
-        kronosaurus_phpmyadmin:
+        phpmyadmin:
           image: phpmyadmin/phpmyadmin
           restart: always
           links:
-            - kronosaurus_mariadb:db
-          ports:
-            - "8082:80"
+            - mariadb:db
+          ports
+:            - "8082:80"
           environment:
             - PMA_USER=root
             - PMA_PASSWORD=password
@@ -58,7 +62,7 @@
         ##
         #  Source Containers
         ##
-        source_kronosaurus:
+        source:
             image: nginx:stable
             volumes:
                 - ./source:/var/www/html

@@ -1,3 +1,3 @@
 FROM nginx:stable
 
-COPY config/ /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/*

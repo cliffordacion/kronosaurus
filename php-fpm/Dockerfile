@@ -2,9 +2,17 @@
 
 FROM php:fpm
 
-RUN apt-get update && apt-get install -q -y ssmtp mailutils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -q -y \
+      git g++ libcurl4-gnutls-dev libicu-dev libmcrypt-dev \
+      libpq-dev libxml2-dev \
+      unzip zlib1g-dev \
+      ssmtp mailutils && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN docker-php-ext-configure pdo_mysql
+
+RUN docker-php-ext-install \
+      pdo_mysql mysqli curl json mbstring pdo pdo_pgsql \
+      && docker-php-ext-enable mysqli
 
 RUN echo "hostname=localhost.localdomain" > /etc/ssmtp/ssmtp.conf
 RUN echo "root=root@example.com" >> /etc/ssmtp/ssmtp.conf
