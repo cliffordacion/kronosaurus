@@ -7,14 +7,17 @@
         php_fpm:
             build: ./php-fpm/
             volumes:
+                - ./php-fpm/supervisor:/etc/supervisor/conf.d
                 - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
             volumes_from: 
                - source 
             links: 
                 - maildev
                 - mariadb
+                - redis
             expose:
                 - 9000
+        
         ##
         #  NGINX
         ##
@@ -28,6 +31,7 @@
                 - php_fpm
             ports:
                 - 8080:80
+        
         ##
         #  Dev Email
         ##
@@ -51,19 +55,28 @@
           restart: always
           links:
             - mariadb:db
-          ports
-:            - "8082:80"
+          ports:
+            - "8082:80"
           environment:
             - PMA_USER=root
             - PMA_PASSWORD=password
             - PHP_UPLOAD_MAX_FILESIZE=100MB
-
  
+        ##
+        #  Source Containers
+        ##
+        redis:
+            build: ./redis/
+            expose:
+                - 6379
+            ports:
+                - 6379:6379
+
         ##
         #  Source Containers
         ##
         source:
             image: nginx:stable
             volumes:
-                - ./source:/var/www/html
+                - ./source/kronosaurus:/var/www/html
             command: "true"
